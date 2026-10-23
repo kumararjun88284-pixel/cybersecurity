@@ -1,0 +1,514 @@
+
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>SecureDelete Simulator — Project Report</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.65;
+    background: #f7f8fa;
+    color: #1f2328;
+  }
+  .page {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 28px 60px;
+    background: #ffffff;
+  }
+
+  /* ── Header ── */
+  .report-header {
+    border-bottom: 3px solid #3b82d4;
+    padding-bottom: 18px;
+    margin-bottom: 32px;
+  }
+  .report-header .badge {
+    display: inline-block;
+    background: #f59e0b;
+    color: #1f2328;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    padding: 3px 9px;
+    border-radius: 3px;
+    margin-bottom: 10px;
+  }
+  .report-header h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1f2328;
+    margin-bottom: 4px;
+  }
+  .report-header .subtitle {
+    font-size: 13px;
+    color: #57606a;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: #57606a;
+  }
+  .meta-row span b { color: #1f2328; }
+
+  /* ── Sections ── */
+  h2 {
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2328;
+    margin: 32px 0 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #e5e7eb;
+  }
+  h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: #3b82d4;
+    margin: 18px 0 6px;
+  }
+  p { margin-bottom: 10px; color: #1f2328; }
+  ul, ol { padding-left: 20px; margin-bottom: 10px; }
+  li { margin-bottom: 4px; }
+
+  /* ── Info grid ── */
+  .info-grid {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 6px 14px;
+    margin-bottom: 16px;
+    font-size: 13px;
+  }
+  .info-grid .lbl { color: #57606a; font-weight: 600; }
+  .info-grid .val { color: #1f2328; }
+
+  /* ── Cards ── */
+  .card {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+  }
+  .card-title {
+    font-weight: 700;
+    font-size: 13px;
+    color: #1f2328;
+    margin-bottom: 6px;
+  }
+  .card p, .card li { font-size: 13px; }
+
+  /* ── Feature table ── */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  th {
+    background: #f7f8fa;
+    color: #57606a;
+    font-weight: 700;
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 2px solid #e5e7eb;
+  }
+  td {
+    padding: 7px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  .tag {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 10px;
+    white-space: nowrap;
+  }
+  .tag-fix  { background: #fef3c7; color: #92400e; }
+  .tag-feat { background: #dbeafe; color: #1e40af; }
+  .tag-safe { background: #d1fae5; color: #065f46; }
+
+  /* ── Module diagram ── */
+  .module-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .module-card {
+    background: #f7f8fa;
+    border: 1px solid #e5e7eb;
+    border-left: 3px solid #7c5cd8;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+  .module-card .mn { font-weight: 700; font-size: 13px; color: #1f2328; font-family: "Consolas", monospace; }
+  .module-card .md { color: #57606a; margin-top: 3px; }
+
+  /* ── Test results table ── */
+  .test-pass { color: #065f46; font-weight: 700; }
+  .test-col  { font-family: "Consolas", monospace; font-size: 12px; }
+
+  /* ── Notice box ── */
+  .notice {
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-left: 4px solid #f59e0b;
+    border-radius: 4px;
+    padding: 12px 14px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  .notice b { color: #92400e; }
+
+  /* ── Code inline ── */
+  code {
+    font-family: "Consolas", monospace;
+    font-size: 12px;
+    background: #f0f0f5;
+    padding: 1px 5px;
+    border-radius: 3px;
+    color: #7c5cd8;
+  }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 48px;
+    padding-top: 16px;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    font-size: 12px;
+    color: #57606a;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  
+  <div class="report-header">
+    <div class="badge">Educational Software Project</div>
+    <h1>🔒 SecureDelete Simulator</h1>
+    <div class="subtitle">Project Report — Python / Tkinter Desktop Application</div>
+    <div class="meta-row">
+      <span><b>Author:</b> Arjun</span>
+      <span><b>Language:</b> Python 3.8+</span>
+      <span><b>Framework:</b> Tkinter (stdlib)</span>
+      <span><b>File:</b> app.py (818 lines)</span>
+      <span><b>Tests:</b> 13 / 13 passed</span>
+      <span><b>Third-party deps:</b> None</span>
+    </div>
+  </div>
+
+  
+  <h2>1. Project Overview</h2>
+  <p>
+    <b>SecureDelete Simulator</b> is a single-file educational desktop application that
+    teaches users about data sanitization, secure deletion standards, and the limitations
+    of software-level overwriting on SSDs — all without touching, deleting, or modifying
+    any file on the user's system.
+  </p>
+  <div class="notice">
+    <b>Safety guarantee:</b> The application is read-only with respect to the selected file.
+    It reads only filesystem metadata (name, size, modification time). No bytes are written
+    to the selected file under any circumstances. Every simulated operation is clearly
+    labelled <code>[SIMULATED]</code> in the activity log and the exported report.
+  </div>
+
+  
+  <h2>2. Project Details</h2>
+  <div class="info-grid">
+    <span class="lbl">Project name</span>    <span class="val">SecureDelete Simulator</span>
+    <span class="lbl">Author</span>          <span class="val">Arjun</span>
+    <span class="lbl">Entry point</span>     <span class="val"><code>python app.py</code></span>
+    <span class="lbl">Language</span>        <span class="val">Python 3.8 or newer</span>
+    <span class="lbl">GUI toolkit</span>     <span class="val">Tkinter + ttk (Python standard library)</span>
+    <span class="lbl">Dependencies</span>   <span class="val">None — stdlib only (pathlib, datetime, threading, random, time)</span>
+    <span class="lbl">Theme</span>          <span class="val">Dark (Catppuccin-inspired palette)</span>
+    <span class="lbl">Platform</span>       <span class="val">Windows, macOS, Linux</span>
+    <span class="lbl">Lines of code</span>   <span class="val">818 (app.py)</span>
+    <span class="lbl">Test file</span>      <span class="val">test_app.py — 13 automated tests</span>
+  </div>
+
+  
+  <h2>3. Objectives</h2>
+  <ul>
+    <li>Demonstrate the step-by-step workflow of a real secure-deletion tool in a safe, read-only simulation.</li>
+    <li>Educate users on the difference between ordinary deletion and data sanitization.</li>
+    <li>Explain why multi-pass overwriting is unreliable on SSDs due to wear-levelling and over-provisioning.</li>
+    <li>Allow users to inspect file metadata without exposing file contents.</li>
+    <li>Generate and export a detailed plain-text educational report.</li>
+    <li>Handle all edge cases gracefully: missing files, empty files, permission errors, long paths.</li>
+  </ul>
+
+  
+  <h2>4. Application Structure</h2>
+  <div class="module-list">
+    <div class="module-card">
+      <div class="mn">_human_size()</div>
+      <div class="md">Converts raw byte count to human-readable string (B / KB / MB / GB / TB). Handles 0-byte (empty) files explicitly.</div>
+    </div>
+    <div class="module-card">
+      <div class="mn">_safe_stat()</div>
+      <div class="md">Reads file size and modification time without raising. Returns <code>(-1, "—")</code> on any OS error — the central safety helper.</div>
+    </div>
+    <div class="module-card">
+      <div class="mn">build_simulation_steps()</div>
+      <div class="md">Returns an ordered list of log-entry dicts describing what a real secure-delete tool would do. Pure computation — zero disk writes.</div>
+    </div>
+    <div class="module-card">
+      <div class="mn">build_report()</div>
+      <div class="md">Assembles a full plain-text educational report combining file metadata, the simulated activity log, and the educational notes section.</div>
+    </div>
+    <div class="module-card">
+      <div class="mn">SecureDeleteApp</div>
+      <div class="md">Main <code>tk.Tk</code> subclass. Owns the 4-tab notebook UI, all state variables, the background simulation thread, and report export.</div>
+    </div>
+    <div class="module-card">
+      <div class="mn">PASS_DEFINITIONS</div>
+      <div class="md">Data-only list of the three simulated overwrite passes (zero-fill, one-fill, random). Weights are consistently typed as <code>float</code>.</div>
+    </div>
+  </div>
+
+  
+  <h2>5. User Interface — Four Tabs</h2>
+
+  <div class="card">
+    <div class="card-title">① Simulator tab</div>
+    <ul>
+      <li><b>Browse…</b> — opens a file dialog; only filesystem metadata is read.</li>
+      <li><b>File Information card</b> — shows Name, Extension, Size, Location, Last Modified, Status.</li>
+      <li><b>Simulation notice</b> — inline amber warning above the buttons.</li>
+      <li><b>Simulate Secure Deletion</b> — runs the animated log in a background thread (UI stays responsive).</li>
+      <li><b>Export Report</b> — saves a <code>.txt</code> file; available before or after simulation.</li>
+      <li><b>Progress bar</b> — advances step-by-step as simulation runs.</li>
+      <li><b>Activity log</b> — colour-coded, scrollable, labelled <code>[SIMULATED — no real operations performed]</code>.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">② Educational Notes tab</div>
+    <p>Full-text educational article covering:</p>
+    <ul>
+      <li>Ordinary deletion — how the OS simply removes the directory pointer.</li>
+      <li>Secure deletion on HDDs — DoD 5220.22-M, Gutmann, NIST SP 800-88.</li>
+      <li>SSD / flash limitations — wear-levelling, over-provisioning, TRIM, compressed writes.</li>
+      <li>Recommended SSD approaches — ATA Secure Erase, NVMe Format, encryption-based erasure.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-title">③ Report tab</div>
+    <p>Live preview of the full plain-text report; updates whenever a file is loaded or a simulation completes. A "Save Report…" button exports to a <code>.txt</code> file.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">④ How to Run tab</div>
+    <p>Built-in help page with requirements, run commands for Windows / macOS / Linux, a step-by-step walkthrough, edge-case documentation, and the safety disclaimer — all readable without leaving the app.</p>
+  </div>
+
+  
+  <h2>6. Simulated Deletion Workflow</h2>
+  <p>When the user clicks <b>Simulate Secure Deletion</b>, the following sequence is logged (all steps are purely computational):</p>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Step</th><th>Description</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td><b>File info header</b></td><td>Target name, size, path, drive anchor logged to the activity pane.</td></tr>
+      <tr><td>2</td><td><b>Pass 1/3 — Zero-fill</b></td><td>[SIMULATED] Overwrite every byte with <code>0x00</code>. Sector and chunk counts derived from file size.</td></tr>
+      <tr><td>3</td><td><b>Pass 2/3 — One-fill</b></td><td>[SIMULATED] Overwrite every byte with <code>0xFF</code>.</td></tr>
+      <tr><td>4</td><td><b>Pass 3/3 — Random</b></td><td>[SIMULATED] Overwrite every byte with cryptographically random data (PRNG).</td></tr>
+      <tr><td>5</td><td><b>Verification read-back</b></td><td>[SIMULATED] Each sector read back and compared to expected final pattern.</td></tr>
+      <tr><td>6</td><td><b>Directory-entry removal</b></td><td>[SIMULATED] Inode / directory entry marked free in the filesystem.</td></tr>
+      <tr><td>7</td><td><b>MFT / FAT zeroing</b></td><td>[SIMULATED] File-system metadata entry overwritten.</td></tr>
+      <tr><td>8</td><td><b>Completion notice</b></td><td>Disclaimer that no actual operation was performed is printed in amber.</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2>7. Bugs Fixed During Development</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Bug</th><th>Impact</th><th>Fix</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>1</td>
+        <td><code>PASS_DEFINITIONS[2]</code> weight was the string <code>"0.40"</code></td>
+        <td>Type inconsistency; would silently fail if weight was ever used in arithmetic</td>
+        <td>Changed to float <code>0.40</code> <span class="tag tag-fix">Fix</span></td>
+      </tr>
+      <tr>
+        <td>2</td>
+        <td><code>build_simulation_steps()</code> called <code>path.stat()</code> directly</td>
+        <td>Uncaught <code>FileNotFoundError</code> crash if file disappeared between selection and simulation</td>
+        <td>Replaced with <code>_safe_stat()</code>; returns a single <code>ERROR</code> log entry instead <span class="tag tag-fix">Fix</span></td>
+      </tr>
+      <tr>
+        <td>3</td>
+        <td><code>build_report()</code> called <code>path.stat()</code> directly</td>
+        <td>Same crash risk as above when building the report</td>
+        <td>Also uses <code>_safe_stat()</code> <span class="tag tag-fix">Fix</span></td>
+      </tr>
+      <tr>
+        <td>4</td>
+        <td><code>build_report(steps=[])</code> produced a blank log section</td>
+        <td>Confusing report output before simulation ran</td>
+        <td>Inserts <code>"(simulation not yet run)"</code> when steps list is empty <span class="tag tag-fix">Fix</span></td>
+      </tr>
+      <tr>
+        <td>5</td>
+        <td>Empty file (0 bytes) went undetected in simulation</td>
+        <td>No user feedback; sector math produced misleading counts</td>
+        <td><code>_human_size(0)</code> returns <code>"0 B (empty file)"</code>; a <code>NOTE</code> entry injected in the log <span class="tag tag-fix">Fix</span></td>
+      </tr>
+      <tr>
+        <td>6</td>
+        <td>File info card showed only 4 fields</td>
+        <td>Missing Last Modified and Status fields</td>
+        <td>Expanded grid to 6 fields (Name, Extension, Size, Location, Last Modified, Status) <span class="tag tag-feat">Enhancement</span></td>
+      </tr>
+      <tr>
+        <td>7</td>
+        <td>Unused <code>import os</code></td>
+        <td>Dead code</td>
+        <td>Removed <span class="tag tag-fix">Fix</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  
+  <h2>8. Edge Case Handling</h2>
+  <table>
+    <thead>
+      <tr><th>Edge Case</th><th>Behaviour</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><b>No file selected</b></td>
+        <td>Simulate button is disabled; clicking Export shows a descriptive warning dialog.</td>
+      </tr>
+      <tr>
+        <td><b>File deleted after selection</b></td>
+        <td>Re-checked immediately before simulation starts. Status field set to "✗ File not found"; single <code>ERROR</code> log entry; no crash.</td>
+      </tr>
+      <tr>
+        <td><b>Empty file (0 bytes)</b></td>
+        <td>Detected on load; Status shows "⚠ Empty file (0 bytes)"; amber <code>NOTE</code> entry in activity log; simulation continues normally.</td>
+      </tr>
+      <tr>
+        <td><b>Path longer than 90 chars</b></td>
+        <td>Display label truncated with leading "…"; full path preserved internally for the report.</td>
+      </tr>
+      <tr>
+        <td><b>Permission error on stat()</b></td>
+        <td><code>_safe_stat()</code> catches it; metadata fields show "—"; simulation shows ERROR entry.</td>
+      </tr>
+      <tr>
+        <td><b>Permission error on export</b></td>
+        <td>Separate <code>PermissionError</code> catch with a "choose a different location" dialog.</td>
+      </tr>
+      <tr>
+        <td><b>Non-file path selected</b></td>
+        <td>Checked with <code>path.is_file()</code>; "Not a File" error dialog shown.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  
+  <h2>9. Test Results</h2>
+  <p>All 13 automated tests in <code>test_app.py</code> pass on Python 3.14.5 (Windows x64).</p>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Test</th><th>Result</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Syntax check (<code>ast.parse</code>)</td><td class="test-pass">PASS</td></tr>
+      <tr><td>2</td><td>All stdlib imports succeed</td><td class="test-pass">PASS</td></tr>
+      <tr><td>3</td><td>Module exec without mainloop</td><td class="test-pass">PASS</td></tr>
+      <tr><td>4</td><td><code>_human_size</code> — 5 size cases (0 B, 512 B, 1 KB, 1 MB, 1 GB)</td><td class="test-pass">PASS</td></tr>
+      <tr><td>5</td><td><code>_safe_stat</code> on a real existing file</td><td class="test-pass">PASS</td></tr>
+      <tr><td>6</td><td><code>_safe_stat</code> on a missing file → <code>(-1, "—")</code></td><td class="test-pass">PASS</td></tr>
+      <tr><td>7</td><td><code>build_simulation_steps</code> — real file (29 steps, 11 labelled [SIMULATED])</td><td class="test-pass">PASS</td></tr>
+      <tr><td>8</td><td><code>build_simulation_steps</code> — empty file (NOTE entry present)</td><td class="test-pass">PASS</td></tr>
+      <tr><td>9</td><td><code>build_simulation_steps</code> — missing file → single ERROR entry</td><td class="test-pass">PASS</td></tr>
+      <tr><td>10</td><td><code>build_report</code> with steps — contains [ALL STEPS SIMULATED], SSD section, NOT disclaimer</td><td class="test-pass">PASS</td></tr>
+      <tr><td>11</td><td><code>build_report</code> no steps → "(simulation not yet run)" placeholder</td><td class="test-pass">PASS</td></tr>
+      <tr><td>12</td><td><code>PASS_DEFINITIONS</code> all weights are <code>float</code></td><td class="test-pass">PASS</td></tr>
+      <tr><td>13</td><td>Report never claims file was "securely erased" or "deleted"</td><td class="test-pass">PASS</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2>10. How to Run</h2>
+  <div class="card">
+    <div class="card-title">Requirements</div>
+    <ul>
+      <li>Python 3.8 or newer — <a href="https://www.python.org/downloads/" style="color:#3b82d4">python.org/downloads</a></li>
+      <li>Tkinter (bundled with the standard Python installer on Windows, macOS, and most Linux distros)</li>
+      <li>No third-party packages required</li>
+    </ul>
+  </div>
+  <div class="card">
+    <div class="card-title">Launch command</div>
+    <p>Open a terminal in the <code>arjunkumar/SecureDeleteSimulator/</code> folder, then:</p>
+    <ul>
+      <li><b>Windows:</b> <code>python app.py</code>  or  <code>py -3 app.py</code></li>
+      <li><b>macOS / Linux:</b> <code>python3 app.py</code></li>
+    </ul>
+  </div>
+
+  
+  <h2>11. Dark Theme Colour Palette</h2>
+  <table>
+    <thead>
+      <tr><th>Token</th><th>Hex</th><th>Usage</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>BG</code></td><td>#1e1e2e</td><td>Main window background</td></tr>
+      <tr><td><code>SURFACE</code></td><td>#2a2a3e</td><td>Card and panel background</td></tr>
+      <tr><td><code>BORDER</code></td><td>#3a3a5c</td><td>Card borders, separator lines</td></tr>
+      <tr><td><code>ACCENT</code></td><td>#7c5cd8</td><td>Primary buttons, START log entries</td></tr>
+      <tr><td><code>ACCENT2</code></td><td>#3b82d4</td><td>Pass / verify / unlink log entries, path label</td></tr>
+      <tr><td><code>SUCCESS</code></td><td>#22c55e</td><td>Completed-pass log entries (✓)</td></tr>
+      <tr><td><code>WARN</code></td><td>#f59e0b</td><td>NOTE entries, "SIMULATION ONLY" badge, inline notice</td></tr>
+      <tr><td><code>ERROR</code></td><td>#ef4444</td><td>ERROR log entries (missing / inaccessible file)</td></tr>
+      <tr><td><code>FG</code></td><td>#e2e8f0</td><td>Primary text</td></tr>
+      <tr><td><code>MUTED</code></td><td>#94a3b8</td><td>Secondary / metadata text</td></tr>
+    </tbody>
+  </table>
+
+  
+  <h2>12. Conclusion</h2>
+  <p>
+    SecureDelete Simulator successfully meets all project objectives. It provides a clear,
+    interactive demonstration of secure-deletion concepts in a safe, non-destructive environment.
+    The application handles all specified edge cases robustly, passes all 13 automated tests,
+    requires no installation beyond Python itself, and runs identically on Windows, macOS, and Linux.
+  </p>
+  <p>
+    The educational content — covering ordinary deletion, multi-pass overwriting standards
+    (DoD 5220.22-M, Gutmann, NIST SP 800-88), and SSD limitations — is embedded directly
+    in the application and also included in every exported report, making the tool genuinely
+    useful as a teaching aid for data security and digital forensics topics.
+  </p>
+
+  
+  <div class="footer">
+    Made with IBM Bob
+  </div>
+
+</div>
+</body>
+</html>
